@@ -55,6 +55,6 @@ def this_main_mz_diag(project,diag):
 
     # 打印结果
     if diag == '':
-        return input_head+project+diag
-    else:
         return input_head+project
+    else:
+        return input_head+project+diag
