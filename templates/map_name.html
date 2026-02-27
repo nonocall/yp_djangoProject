@@ -1,0 +1,351 @@
+<!-- map_name.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}匹配字段(医院){% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/my_new.css' %}">
+    <link rel="stylesheet" href="{% static 'css/excel_styles.css' %}">
+{% endblock %}
+
+{% block content %}
+    <!-- 查询区域 -->
+    <div class="query-section">
+        <form id="diagnosisForm" class="inline-form">
+            <div class="form-group">
+                <label for="user" class="pro">输入账号:</label>
+                <input type="text" id="user" name="user" class="input" placeholder="请输入账号">
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <span class="btn-icon">🔍</span>查询
+            </button>
+        </form>
+
+        <form id="Table_To_Table" class="inline-form">
+            <div class="form-group">
+                <label for="Table_O">源表:</label>
+                <input type="text" id="Table_O" name="Table_O" class="input" placeholder="输入源表名称">
+            </div>
+            <div class="form-group">
+                <label for="Table_D">目标表:</label>
+                <select id="Table_D" class="sync-select form-select" name="Table_D">
+                    <option value="mzzd">门诊主单</option>
+                    <option value="mzmx">门诊明细</option>
+                    <option value="zyzd" selected>住院主单</option>
+                    <option value="zymx">住院明细</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success">
+                <span class="btn-icon">✓</span>确定
+            </button>
+        </form>
+    </div>
+
+    <h2 class="section-title">数据字段映射</h2>
+
+    <!-- 操作按钮组 -->
+    <div class="action-bar">
+        <button id="loading" type="button" class="btn btn-info">
+            <span class="btn-icon">📥</span>装载
+        </button>
+        <button id="refreshing" type="button" class="btn btn-warning">
+            <span class="btn-icon">🔄</span>刷新
+        </button>
+        <button id="map_button" type="button" class="btn btn-success">
+            <span class="btn-icon">⚙️</span>生成
+        </button>
+    </div>
+
+    <!-- 映射表格 -->
+    <div class="table-container">
+        <table id="map" class="table table-bordered table-striped table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th id="T1">源字段</th>
+                    <th id="T2">目标字段</th>
+                </tr>
+            </thead>
+            <tbody id="my_list">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 结果显示 -->
+    <div class="result-panel">
+        <p id="resultText" class="result-text">{{ key }}</p>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    {% if tag == 1 %}
+        <script type="text/javascript" src="{% static 'js/key_value_his.js' %}"></script>
+    {% else %}
+        <script type="text/javascript" src="{% static 'js/key_value_bmi.js' %}"></script>
+    {% endif %}
+    <script>
+    // 初始化函数
+    function initNavbar() {
+        highlightCurrentLink();
+        setupDropdown();
+        setupSmoothScroll();
+        setupCustomInput();}
+    
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', initNavbar);
+
+    // 公共请求函数
+    function sendPostRequest(url, data, re) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        resolve(response[re]);
+                    } catch (error) {
+                        reject('解析错误: ' + error.message);
+                    }
+                } else {
+                    reject('请求错误: ' + xhr.status);
+                }
+            };
+            xhr.onerror = () => reject('网络错误，请检查连接');
+            xhr.ontimeout = () => reject('请求超时，请稍后重试');
+            xhr.send(data);
+        });
+    }
+
+    function generate_options(Table_D) {
+        const options = {
+            "mzzd": ["结算单据号","医疗机构编码","医疗机构名称","结算日期","个人编码或患者社保卡号","险种类型","人员类别","科室名称","患者姓名","主诊医师编码","主诊医师名称","患者性别","患者出生日期","患者年龄","就医类型","异地标志","诊断编码","诊断名称","医疗总发生费用","医保申请支付金额","科室编码","医院级别","结算类别","退费时间","拒付金额","医保支付费用","退费标识","患者身份证号"],
+            "mzmx": ["结算单据号","个人编码","医疗机构编码","项目使用时间","医院项目编码","医院项目名称","医保项目编码","医保项目名称","规格","剂型","最小包装单位","单价","数量","金额","医保申请支付金额","费用类别","退费时间","退费标识","拒付理由","拒付金额","用药天数","医疗机构名称","患者身份证号"],
+            "zyzd": ["病案号","结算单据号","医疗机构编码","医疗机构名称","医院级别","统筹区域编码","统筹区域名称","结算日期","住院号","个人编码","患者社保卡号","结算类别","险种类型","人员类型","新生儿入院类型","新生儿出生体重","新生儿入院体重","退费标识","退费时间","入院科别编码","入院科室名称","转科科室编码","转科科别名称","出院科室编码","出院科室名称","主诊医师编码","主诊医师姓名","患者姓名","患者性别","患者出生日期","患者年龄","住院医疗类型","异地标志","本地异地结算类型","入院日期","出院日期","住院天数","离院方式","上一次出院日期","是否有31天内再住院计划","医疗总发生费用","医保申请支付金额","医保实际支付费用","拒付金额","入院诊断编码","入院诊断名称","出院诊断编码","出院诊断名称","医保支付方式","病组病种编码","病组病种名称","医保结算等级","患者身份证号"],
+            "zymx": ["结算单据号","个人编码","住院号","医疗机构编码","执行科室编码","执行科室名称","费用类别","项目使用时间","医院项目编码","医院项目名称","医保项目编码","医保项目名称","规格","剂型","最小包装单位","单价","数量","项目总发生金额","医保申请支付金额","拒付金额","拒付理由","出院带药标识","退费标识","退费时间","医疗机构名称","患者身份证号"]
+        };
+
+        let html = "<option value=''>-- 请选择 --</option>";
+        options[Table_D].forEach(opt => {
+            html += `<option value="${opt}">${opt}</option>`;
+        });
+        return html;
+    }
+
+    // 同步选择逻辑：选中后移除其他下拉框中的选项，取消时恢复
+    function syncSelects(event) {
+        const currentSelect = event.target;
+        const newValue = currentSelect.value;
+        const oldValue = currentSelect.dataset.previousValue || '';
+        const allSelects = document.querySelectorAll('#my_list .sync-select');
+
+        // 1. 恢复旧值到其他select
+        if (oldValue) {
+            allSelects.forEach(select => {
+                if (select !== currentSelect && !select.querySelector(`option[value="${CSS.escape(oldValue)}"]`)) {
+                    const option = document.createElement('option');
+                    option.value = oldValue;
+                    option.textContent = oldValue;
+                    // 按字母顺序插入
+                    const options = Array.from(select.options);
+                    const insertBefore = options.find(opt => opt.value && opt.value.localeCompare(oldValue) > 0);
+                    if (insertBefore) {
+                        select.insertBefore(option, insertBefore);
+                    } else {
+                        select.appendChild(option);
+                    }
+                }
+            });
+        }
+
+        // 2. 从其他select中移除新值
+        if (newValue) {
+            allSelects.forEach(select => {
+                if (select !== currentSelect) {
+                    const option = select.querySelector(`option[value="${CSS.escape(newValue)}"]`);
+                    if (option) option.remove();
+                }
+            });
+        }
+
+        // 3. 记录当前值
+        currentSelect.dataset.previousValue = newValue;
+
+        // 4. 更新高亮状态
+        updateSelectHighlight(allSelects);
+    }
+
+    // 更新下拉框高亮状态
+    function updateSelectHighlight(selects) {
+        selects.forEach(select => {
+            const hasAvailable = Array.from(select.options).some(opt => !opt.disabled && !opt.selected && opt.value);
+            select.classList.toggle('has-available-options', hasAvailable);
+            select.classList.toggle('fully-mapped', !hasAvailable && select.value);
+        });
+    }
+
+    // 自动匹配字段
+    function auto_match(col) {
+        const selects = document.querySelectorAll('#my_list .sync-select');
+        const dictionaries = [myDictionary_mzzd, myDictionary_zyzd, myDictionary_mzmx, myDictionary_zymx];
+
+        col.forEach((_, n) => {
+            const td = document.getElementById('value' + n);
+            const select = document.getElementById('key' + n);
+            if (!td || !select) return;
+
+            const tdText = td.textContent.trim().toUpperCase();
+
+            for (const dict of dictionaries) {
+                if (dict[tdText]) {
+                    const targetValue = dict[tdText];
+                    const option = select.querySelector(`option[value="${CSS.escape(targetValue)}"]`);
+                    if (option && !option.disabled) {
+                        // 触发同步逻辑
+                        select.value = targetValue;
+                        select.dispatchEvent(new Event('change'));
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    // 获取表名
+    document.getElementById('diagnosisForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        sendPostRequest('/myapp/map_name_1/', formData, 'table_names')
+            .then(data => document.getElementById('resultText').innerText = data)
+            .catch(error => document.getElementById('resultText').innerText = error);
+    });
+
+    // 获取字段名
+    document.getElementById('Table_To_Table').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const tableO = document.getElementById('Table_O').value;
+        const tableD = document.getElementById('Table_D').value;
+
+        document.getElementById('T1').innerText = tableO || '源字段';
+
+        const tableNames = {
+            'mzzd': '医院门诊结算主单',
+            'mzmx': '医院门诊结算明细',
+            'zyzd': '医院住院结算主单',
+            'zymx': '医院住院结算明细'
+        };
+        document.getElementById('T2').innerText = tableNames[tableD] || '目标字段';
+
+        formData.set("user", document.getElementById('user').value);
+        sendPostRequest('/myapp/map_name_2/', formData, 'cols')
+            .then(data => document.getElementById('resultText').innerText = data)
+            .catch(error => document.getElementById('resultText').innerText = error);
+    });
+
+    // 生成映射
+    document.getElementById('map_button').addEventListener('click', function (event) {
+        event.preventDefault();
+        const tableData = new FormData();
+        const rows = document.querySelectorAll("#my_list tr");
+
+        rows.forEach(row => {
+            const valueCell = row.querySelector("td:first-child");
+            const select = row.querySelector("select");
+            const value = valueCell ? valueCell.textContent.trim() : "";
+            const selected = select ? select.value : "";
+
+            if (value && selected) {
+                tableData.set(value, selected);
+            }
+        });
+
+        tableData.set("user", document.getElementById('user').value);
+        tableData.set("Table_D", document.getElementById('Table_D').value);
+        tableData.set("Table_O", document.getElementById('Table_O').value);
+
+        sendPostRequest('/myapp/map_name_3/', tableData, 'resultText')
+            .then(data => document.getElementById('resultText').innerText = data)
+            .catch(error => document.getElementById('resultText').innerText = error);
+    });
+
+    // 装载表格
+    document.getElementById('loading').addEventListener('click', function (event) {
+        event.preventDefault();
+        const resultText = document.getElementById('resultText').innerText;
+        if (!resultText || resultText === '{{ key }}') {
+            alert('请先查询获取字段列表');
+            return;
+        }
+
+        const col = resultText.split(',').filter(item => item.trim());
+        const Table_D = document.getElementById('Table_D').value;
+        const options = generate_options(Table_D);
+
+        const tbody = document.getElementById('my_list');
+        tbody.innerHTML = '';
+
+        col.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td id="value${index}" class="source-field">${item}</td>
+                <td class="target-cell">
+                    <select class="sync-select form-select" id="key${index}" name="key${index}" data-previous-value="">
+                        ${options}
+                    </select>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // 绑定事件
+        const selects = tbody.querySelectorAll('.sync-select');
+        selects.forEach(select => {
+            select.addEventListener('change', syncSelects);
+        });
+
+        // 自动匹配
+        auto_match(col);
+
+        // 更新高亮
+        updateSelectHighlight(selects);
+
+        // 显示成功提示
+        showToast(`已装载 ${col.length} 个字段`);
+    });
+
+    // 刷新
+    document.getElementById('refreshing').addEventListener('click', function (event) {
+        event.preventDefault();
+        // 重置所有选择
+        const selects = document.querySelectorAll('#my_list .sync-select');
+        selects.forEach(select => {
+            const oldValue = select.dataset.previousValue;
+            if (oldValue) {
+                // 恢复选项
+                const event = { target: select };
+                select.value = '';
+                syncSelects(event);
+            }
+        });
+        showToast('已重置所有映射');
+    });
+
+    // 显示提示
+    function showToast(message) {
+        const existing = document.querySelector('.toast-message');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        requestAnimationFrame(() => toast.classList.add('show'));
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    }
+    </script>
+{% endblock %}

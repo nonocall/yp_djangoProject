@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/excel_styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i> ZIP压缩包文件上传</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label for="{{ form.file.id_for_label }}" class="form-label fw-bold">
+                        <i class="bi bi-upload me-1"></i> 选择ZIP压缩包文件
+                    </label>
+                    {{ form.file }}
+                    <div class="form-text">支持 .zip 和 .xlsx 、 .xls 格式的Excel文件</div>
+                    {% if form.file.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.file.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-cloud-upload me-2"></i> 上传并处理
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="mt-5">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h3 class="mb-0"><i class="bi bi-info-circle me-2"></i> 使用说明</h3>
+            </div>
+            <div class="card-body">
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">选择ZIP压缩包文件</div>
+                            点击"选择文件"按钮，从您的设备中选择要上传的ZIP压缩包文件
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">上传并处理</div>
+                            点击"上传并处理"按钮，系统将分析文件内容
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">查看结果</div>
+                            系统将显示ZIP压缩包内汇总EXCEL文件的表头和前10行数据
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">下载文件</div>
+                            您可以选择下载原始文件
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 表单验证
+(function () {
+  'use strict'
+  
+  // 获取所有需要验证的表单
+  var forms = document.querySelectorAll('.needs-validation')
+  
+  // 循环并添加验证
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>
+{% endblock %}
