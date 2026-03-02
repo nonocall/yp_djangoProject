@@ -26,6 +26,7 @@ urlpatterns = [
     path('myapp/', include('myapp.urls')),  # 包含 myapp 的 URL 配置
     path('excel/', include('excel_app.urls')),
     path('zip/', include('zip_app.urls')),
+    path('sql-converter/', include('sql_converter.urls')),
     path('', views.index, name='index'),
 
 ]

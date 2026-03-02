@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/excel_styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">
+                <i class="bi bi-file-earmark-code me-2"></i>
+                SQL转换器 - wm_concat转listagg
+            </h2>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="{{ form.file.id_for_label }}" class="form-label fw-bold">
+                        <i class="bi bi-upload me-1"></i>
+                        选择Excel文件
+                    </label>
+                    {{ form.file }}
+                    <div class="form-text">
+                        支持 .xlsx 和 .xls 格式的Excel文件，文件需包含 <strong>RULE_SQL_VALUE</strong> 列
+                    </div>
+                    {% if form.file.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.file.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-cloud-upload me-2"></i>
+                        上传并转换
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h3 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    使用说明
+                </h3>
+            </div>
+            <div class="card-body">
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">准备Excel文件</div>
+                            确保Excel文件包含 <code>RULE_SQL_VALUE</code> 列，该列中包含需要转换的Oracle SQL语句
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">上传文件</div>
+                            点击"选择文件"按钮，选择要上传的Excel文件
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">自动转换</div>
+                            系统将自动识别SQL中的 <code>wm_concat</code> 函数并转换为 <code>listagg</code> 函数
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">下载结果</div>
+                            转换完成后，可以预览转换结果并下载转换后的Excel文件
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h3 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    转换说明
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>转换前 (wm_concat)</h5>
+                        <pre class="bg-light p-3 rounded"><code>SELECT wm_concat(column_name) 
+FROM table_name</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>转换后 (listagg)</h5>
+                        <pre class="bg-light p-3 rounded"><code>SELECT listagg(column_name, ',') 
+       within group (order by column_name)
+FROM table_name</code></pre>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>提示：</strong>wm_concat是Oracle 10g/11g中的自定义聚合函数，在Oracle 12c+中已被listagg取代。
+                    转换后的SQL将新增一列 <code>RULE_SQL_VALUE_CONVERTED</code> 存储转换结果。
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

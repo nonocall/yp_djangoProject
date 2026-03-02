@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'excel_app',
-    'zip_app'
+    'zip_app',
+    'sql_converter',
 ]
 
 MIDDLEWARE = [

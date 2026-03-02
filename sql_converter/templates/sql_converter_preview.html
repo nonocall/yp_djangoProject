@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/excel_styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow mb-5">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">
+                <i class="bi bi-file-earmark-check me-2"></i>
+                SQL转换结果预览
+            </h2>
+            <div>
+                <a href="{% url 'download_converted_excel' file_id %}" class="btn btn-light btn-lg me-2">
+                    <i class="bi bi-download me-2"></i>
+                    下载转换后文件
+                </a>
+                <a href="{% url 'download_original_excel' file_id %}" class="btn btn-outline-light btn-lg">
+                    <i class="bi bi-file-earmark me-2"></i>
+                    下载原文件
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info mb-4">
+                <h4><i class="bi bi-info-circle me-2"></i> 转换信息</h4>
+                <p class="mb-1">原文件名: <strong>{{ original_filename }}</strong></p>
+                <p class="mb-1">转换后文件名: <strong>{{ converted_filename }}</strong></p>
+                <p class="mb-0">成功转换SQL数量: <span class="badge bg-success fs-6">{{ conversion_count }}</span></p>
+            </div>
+            
+            <h3 class="mb-3">数据预览 (前10行)</h3>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            {% for header in headers %}
+                            <th>{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in preview_data %}
+                        <tr>
+                            {% for cell in row %}
+                            <td>
+                                {% if cell %}
+                                    {% if cell|length > 100 %}
+                                        <span title="{{ cell }}">{{ cell|truncatechars:100 }}</span>
+                                    {% else %}
+                                        {{ cell }}
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-5">
+                <a href="{% url 'upload_sql_converter' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-arrow-left-circle me-2"></i>
+                    返回上传新文件
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
