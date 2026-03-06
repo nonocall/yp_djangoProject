@@ -79,11 +79,14 @@ def sql_converter_preview(request):
         'file_id': converter_data['file_id'],
         'original_filename': converter_data['original_filename'],
         'converted_filename': converter_data['converted_filename'],
-        'conversion_count': converter_data['conversion_count']
+        'wm_concat': converter_data['conversion_count'] // 10000,
+        'placeholder': converter_data['conversion_count'] % 10000
     }
 
     return render(request, 'sql_converter_preview.html', context)
 
+
+from urllib.parse import quote
 
 def download_converted_excel(request, file_id):
     """下载转换后的Excel文件"""
@@ -97,7 +100,9 @@ def download_converted_excel(request, file_id):
                     file.read(),
                     content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                 )
-                response['Content-Disposition'] = f'attachment; filename="{sql_file.converted_filename}"'
+                # 对文件名进行URL编码，支持中文文件名
+                filename = quote(sql_file.converted_filename)
+                response['Content-Disposition'] = f'attachment; filename="{filename}"; filename*=UTF-8\'\'{filename}'
                 return response
 
     except SQLConverterFile.DoesNotExist:
@@ -118,7 +123,9 @@ def download_original_excel(request, file_id):
                     file.read(),
                     content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                 )
-                response['Content-Disposition'] = f'attachment; filename="{sql_file.original_filename}"'
+                # 对文件名进行URL编码，支持中文文件名
+                filename = quote(sql_file.original_filename)
+                response['Content-Disposition'] = f'attachment; filename="{filename}"; filename*=UTF-8\'\'{filename}'
                 return response
 
     except SQLConverterFile.DoesNotExist:
