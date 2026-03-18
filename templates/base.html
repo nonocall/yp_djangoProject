@@ -94,13 +94,18 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/zip/zip_preview/' or request.path == '/api/zip_preview/'%}active{% endif %}" href="{% url 'zip_preview'%}">
+                        <a class="nav-link {% if request.path == '/zip/preview/' or request.path == '/api/preview/'%}active{% endif %}" href="{% url 'zip_preview'%}">
                             <i class="bi bi-envelope me-1"></i> 处理zip包
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/sql-converter/preview/' or request.path == '/api/preview/'%}active{% endif %}" href="{% url 'upload_sql_converter'%}">
+                        <a class="nav-link {% if request.path == '/sql-converter/preview/' or request.path == '/sql-converter/upload/'%}active{% endif %}" href="{% url 'upload_sql_converter'%}">
                             <i class="bi bi-envelope me-1"></i> 转换sql
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/excel/oracle_rule/' or request.path == '/excel/oracle_rule/history/'%}active{% endif %}" href="{% url 'oracle_rule_upload'%}">
+                            <i class="bi bi-envelope me-1"></i> Oracle规则执行
                         </a>
                     </li>
                     <li class="nav-item dropdown">
@@ -160,6 +165,9 @@
             <p class="mb-0"> Django & Bootstrap </p>
         </div>
     </footer>
+
+    <!-- jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 
 {#    <!-- Bootstrap JS -->#}
 {#    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>#}
