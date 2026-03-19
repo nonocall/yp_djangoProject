@@ -67,17 +67,17 @@ def over_num(request):
         PA = request.POST.get('projectA', '')
         diag = request.POST.get('diagA', '')
         if request.POST.get('num', '') == '':
-            reversed_string = this_main_zy_num(PA,diag)+"1"
+            reversed_string = this_main_zy_num(PA,diag,"1")
         else:
-            reversed_string = this_main_zy_num(PA, diag) + request.POST.get('num', '')
+            reversed_string = this_main_zy_num(PA, diag,request.POST.get('num', ''))
         return JsonResponse({'reversed_string': reversed_string})
     if request.POST.get('rule_category', '')== 'mz':
         PA = request.POST.get('projectA', '')
         diag = request.POST.get('diagA', '')
         if request.POST.get('num', '')== '':
-            reversed_string = this_main_mz_num(PA, diag)+'1'
+            reversed_string = this_main_mz_num(PA, diag,'1')
         else:
-            reversed_string = this_main_mz_num(PA, diag) + request.POST.get('num', '')
+            reversed_string = this_main_mz_num(PA, diag,request.POST.get('num', ''))
         return JsonResponse({'reversed_string': reversed_string})
     return render(request, 'over_num.html')
 

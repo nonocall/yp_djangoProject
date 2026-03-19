@@ -78,22 +78,22 @@ WSGI_APPLICATION = 'yp_djangoProject.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'mssql',  # 使用mssql-django提供的引擎
-    #     'NAME': 'yp_django_bootstrap',  # 数据库名称
-    #     'USER': 'SA',  # 数据库用户名
-    #     'PASSWORD': 'P@ssw0rd',  # 数据库密码
-    #     'HOST': '192.168.28.10',  # SQL Server主机名或IP地址
-    #     'PORT': '1433',  # SQL Server端口号，默认为1433
-    #     'OPTIONS': {
-    #         'driver': 'ODBC Driver 17 for SQL Server',  # 指定ODBC驱动程序
-    #     },
-    # },
-
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'mssql',  # 使用mssql-django提供的引擎
+        'NAME': 'yp_django_bootstrap',  # 数据库名称
+        'USER': 'SA',  # 数据库用户名
+        'PASSWORD': 'P@ssw0rd',  # 数据库密码
+        'HOST': '192.168.28.10',  # SQL Server主机名或IP地址
+        'PORT': '1433',  # SQL Server端口号，默认为1433
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',  # 指定ODBC驱动程序
+        },
+    },
+
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
 }
 
 # Media files
