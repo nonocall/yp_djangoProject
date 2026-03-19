@@ -59,8 +59,9 @@ def this_main_mz_num(project,diag,num):
     , b.医保项目编码, b.医保项目名称, b.医院项目编码, b.医院项目名称, b.费用类别, b.规格, b.剂型, b.最小包装单位, b.用药天数, b.单价)
     SELECT A.*,项目总金额 违规金额 FROM A
     """
+    tail = f"and 数量 >{num}"
     # 打印结果
     if diag == '':
-        return input_head1 + wg + input_head2 +project+"and 数量 >"
+        return input_head1 + wg + input_head2 +project+ tail
     else:
-        return input_head1 + wg + input_head2 + project + diag + "and 数量 >"
+        return input_head1 + wg + input_head2 + project + diag + tail
