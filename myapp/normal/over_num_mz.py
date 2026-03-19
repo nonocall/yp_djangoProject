@@ -49,8 +49,7 @@ def this_main_mz_num(project,diag,num):
 
     wg = f", 单价*(sum(b.数量)-{num}) AS 项目医保内金额\n"
 
-    input_head2 = """
-    FROM 医院门诊结算主单 a
+    input_head2 = """FROM 医院门诊结算主单 a
     LEFT JOIN 医院门诊结算明细 b ON a.结算单据号 = b.结算单据号
     WHERE (a.结算类别 like'%医保%' or a.结算类别='1')
     GROUP BY a.医疗机构编码, a.医疗机构名称, a.医院级别, a.结算单据号, a.结算类别, a.结算日期, a.险种类型, a.就医类型, a.异地标志
