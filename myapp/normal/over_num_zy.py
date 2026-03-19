@@ -50,7 +50,7 @@ def this_main_zy_num(project,diag,num):
     b.费用类别, b.执行科室名称, b.医保项目编码, b.医保项目名称, b.医院项目编码, b.医院项目名称, 规格,剂型,    
     b.单价,sum(b.数量) as 数量, sum(b.项目总发生金额) as 项目总发生金额, sum(b.医保申请支付金额) 医保申请支付金额
     """
-    wg = f",cast(b.单价*(sum(b.数量)-{num}) as decimal(18,2))违规金额\n"
+    wg = f",cast(b.单价*(sum(b.数量)-{num}) as decimal(18,2)) 违规金额\n"
     input_string_join = """from 医院住院结算主单 a left join 医院住院结算明细 b on a.结算单据号 = b.结算单据号
     where (a.结算类别 like'%医保%' or a.结算类别='1')"""
 

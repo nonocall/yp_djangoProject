@@ -47,7 +47,7 @@ def this_main_mz_num(project,diag,num):
     , sum(b.数量) AS 数量, sum(b.金额) AS 项目总金额
     , sum(b.医保申请支付金额) AS 项目医保内金额"""
 
-    wg = f", 单价*(sum(b.数量)-{num}) AS 项目医保内金额\n"
+    wg = f", 单价*(sum(b.数量)-{num}) AS 违规金额\n"
 
     input_head2 = """FROM 医院门诊结算主单 a
     LEFT JOIN 医院门诊结算明细 b ON a.结算单据号 = b.结算单据号
